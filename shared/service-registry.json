@@ -10,8 +10,8 @@
       "/categories",
       "/search"
     ],
-    "registeredAt": "2025-09-21T22:13:27.420Z",
-    "lastHealthCheck": "2025-09-21T22:13:27.421Z",
+    "registeredAt": "2025-09-21T22:20:54.304Z",
+    "lastHealthCheck": "2025-09-21T22:22:24.333Z",
     "healthy": true
   },
   "list-service": {
@@ -24,8 +24,8 @@
       "/lists/:id",
       "/lists/:id/items/:itemId"
     ],
-    "registeredAt": "2025-09-21T22:13:27.459Z",
-    "lastHealthCheck": "2025-09-21T22:13:27.461Z",
+    "registeredAt": "2025-09-21T22:20:54.317Z",
+    "lastHealthCheck": "2025-09-21T22:22:24.348Z",
     "healthy": true
   },
   "user-service": {
@@ -38,8 +38,8 @@
       "/auth/login",
       "/users/:id"
     ],
-    "registeredAt": "2025-09-21T22:13:28.452Z",
-    "lastHealthCheck": "2025-09-21T22:13:28.452Z",
+    "registeredAt": "2025-09-21T22:20:55.396Z",
+    "lastHealthCheck": "2025-09-21T22:22:25.424Z",
     "healthy": true
   }
 }

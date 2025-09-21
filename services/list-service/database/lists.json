@@ -118,5 +118,20 @@
     },
     "createdAt": "2025-09-21T22:13:44.095Z",
     "updatedAt": "2025-09-21T22:13:44.095Z"
+  },
+  {
+    "id": "e128a6dc-1753-43c4-8563-97ff5b959413",
+    "userId": "98320041-104e-45a5-81a0-8f8311bdb382",
+    "name": "Minha Lista de Compras",
+    "description": "Lista de compras da semana",
+    "status": "active",
+    "items": [],
+    "summary": {
+      "totalItems": 0,
+      "purchasedItems": 0,
+      "estimatedTotal": 0
+    },
+    "createdAt": "2025-09-21T22:22:09.656Z",
+    "updatedAt": "2025-09-21T22:22:09.656Z"
   }
 ]
