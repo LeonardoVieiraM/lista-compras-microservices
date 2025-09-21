@@ -1,298 +1,174 @@
 const fs = require('fs-extra');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
 
 class JsonDatabase {
-    constructor(dbPath, collectionName) {
-        this.dbPath = dbPath;
+    constructor(basePath, collectionName) {
+        this.basePath = basePath;
         this.collectionName = collectionName;
-        this.filePath = path.join(dbPath, `${collectionName}.json`);
-        this.indexPath = path.join(dbPath, `${collectionName}_index.json`);
-
-        this.ensureDatabase();
+        this.filePath = path.join(basePath, `${collectionName}.json`);
+        
+        // Ensure directory exists
+        fs.ensureDirSync(basePath);
+        
+        // Initialize file if it doesn't exist
+        if (!fs.existsSync(this.filePath)) {
+            fs.writeJsonSync(this.filePath, []);
+        }
     }
-
-    async ensureDatabase() {
+    
+    async find(query = {}, options = {}) {
         try {
-            // Criar diretório do banco se não existir
-            await fs.ensureDir(this.dbPath);
-
-            // Criar arquivo da coleção se não existir
-            if (!await fs.pathExists(this.filePath)) {
-                await fs.writeJson(this.filePath, []);
+            let data = await fs.readJson(this.filePath);
+            
+            // Apply query filters
+            if (Object.keys(query).length > 0) {
+                data = data.filter(item => {
+                    for (const [key, value] of Object.entries(query)) {
+                        // Handle special query operators
+                        if (key.startsWith('$')) {
+                            switch (key) {
+                                case '$or':
+                                    return value.some(condition => {
+                                        return Object.entries(condition).every(([k, v]) => {
+                                            return this.matchValue(item[k], v);
+                                        });
+                                    });
+                                    
+                                case '$and':
+                                    return value.every(condition => {
+                                        return Object.entries(condition).every(([k, v]) => {
+                                            return this.matchValue(item[k], v);
+                                        });
+                                    });
+                                    
+                                case '$not':
+                                    return !Object.entries(value).every(([k, v]) => {
+                                        return this.matchValue(item[k], v);
+                                    });
+                                    
+                                default:
+                                    return true;
+                            }
+                        }
+                        
+                        // Regular field matching
+                        if (!this.matchValue(item[key], value)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
             }
-
-            // Criar índice se não existir
-            if (!await fs.pathExists(this.indexPath)) {
-                await fs.writeJson(this.indexPath, {});
-            }
-        } catch (error) {
-            console.error('Erro ao inicializar banco:', error);
-            throw error;
-        }
-    }
-
-    // Criar documento
-    async create(data) {
-        try {
-            const documents = await this.readAll();
-            const document = {
-                id: data.id || uuidv4(),
-                ...data,
-                createdAt: data.createdAt || new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-
-            documents.push(document);
-            await this.writeAll(documents);
-            await this.updateIndex(document);
-
-            return document;
-        } catch (error) {
-            console.error('Erro ao criar documento:', error);
-            throw error;
-        }
-    }
-
-    // Buscar por ID
-    async findById(id) {
-        try {
-            const documents = await this.readAll();
-            return documents.find(doc => doc.id === id) || null;
-        } catch (error) {
-            console.error('Erro ao buscar documento:', error);
-            throw error;
-        }
-    }
-
-    // Buscar um documento com filtro
-    async findOne(filter) {
-        try {
-            const documents = await this.readAll();
-            return documents.find(doc => this.matchesFilter(doc, filter)) || null;
-        } catch (error) {
-            console.error('Erro ao buscar documento:', error);
-            throw error;
-        }
-    }
-
-    // Buscar múltiplos documentos
-    async find(filter = {}, options = {}) {
-        try {
-            let documents = await this.readAll();
-
-            // Aplicar filtro
-            if (Object.keys(filter).length > 0) {
-                documents = documents.filter(doc => this.matchesFilter(doc, filter));
-            }
-
-            // Aplicar ordenação
+            
+            // Apply sorting
             if (options.sort) {
-                documents = this.sortDocuments(documents, options.sort);
+                data.sort((a, b) => {
+                    for (const [field, direction] of Object.entries(options.sort)) {
+                        if (a[field] < b[field]) return direction === 1 ? -1 : 1;
+                        if (a[field] > b[field]) return direction === 1 ? 1 : -1;
+                    }
+                    return 0;
+                });
             }
-
-            // Aplicar paginação
-            if (options.skip || options.limit) {
-                const skip = options.skip || 0;
-                const limit = options.limit || documents.length;
-                documents = documents.slice(skip, skip + limit);
+            
+            // Apply pagination
+            if (options.skip) {
+                data = data.slice(options.skip);
             }
-
-            return documents;
+            
+            if (options.limit) {
+                data = data.slice(0, options.limit);
+            }
+            
+            return data;
         } catch (error) {
-            console.error('Erro ao buscar documentos:', error);
+            console.error('Database find error:', error);
             throw error;
         }
     }
-
-    // Contar documentos
-    async count(filter = {}) {
+    
+    async findOne(query = {}) {
+        const results = await this.find(query, { limit: 1 });
+        return results.length > 0 ? results[0] : null;
+    }
+    
+    async findById(id) {
+        return await this.findOne({ id });
+    }
+    
+    async count(query = {}) {
+        const results = await this.find(query);
+        return results.length;
+    }
+    
+    async create(item) {
         try {
-            const documents = await this.readAll();
-            if (Object.keys(filter).length === 0) {
-                return documents.length;
-            }
-            return documents.filter(doc => this.matchesFilter(doc, filter)).length;
+            const data = await fs.readJson(this.filePath);
+            data.push(item);
+            await fs.writeJson(this.filePath, data, { spaces: 2 });
+            return item;
         } catch (error) {
-            console.error('Erro ao contar documentos:', error);
+            console.error('Database create error:', error);
             throw error;
         }
     }
-
-    // Atualizar documento
+    
     async update(id, updates) {
         try {
-            const documents = await this.readAll();
-            const index = documents.findIndex(doc => doc.id === id);
-
+            const data = await fs.readJson(this.filePath);
+            const index = data.findIndex(item => item.id === id);
+            
             if (index === -1) {
-                return null;
+                throw new Error('Item not found');
             }
-
-            documents[index] = {
-                ...documents[index],
-                ...updates,
-                id: documents[index].id, // Preservar ID
-                createdAt: documents[index].createdAt, // Preservar data de criação
-                updatedAt: new Date().toISOString()
-            };
-
-            await this.writeAll(documents);
-            await this.updateIndex(documents[index]);
-
-            return documents[index];
+            
+            data[index] = { ...data[index], ...updates };
+            await fs.writeJson(this.filePath, data, { spaces: 2 });
+            
+            return data[index];
         } catch (error) {
-            console.error('Erro ao atualizar documento:', error);
+            console.error('Database update error:', error);
             throw error;
         }
     }
-
-    // Deletar documento
+    
     async delete(id) {
         try {
-            const documents = await this.readAll();
-            const index = documents.findIndex(doc => doc.id === id);
-
-            if (index === -1) {
-                return false;
+            const data = await fs.readJson(this.filePath);
+            const filteredData = data.filter(item => item.id !== id);
+            
+            if (filteredData.length === data.length) {
+                throw new Error('Item not found');
             }
-
-            documents.splice(index, 1);
-            await this.writeAll(documents);
-            await this.removeFromIndex(id);
-
+            
+            await fs.writeJson(this.filePath, filteredData, { spaces: 2 });
             return true;
         } catch (error) {
-            console.error('Erro ao deletar documento:', error);
+            console.error('Database delete error:', error);
             throw error;
         }
     }
-
-    // Busca de texto
-    async search(query, fields = []) {
-        try {
-            const documents = await this.readAll();
-            const searchTerm = query.toLowerCase();
-
-            return documents.filter(doc => {
-                // Se campos específicos foram fornecidos, buscar apenas neles
-                if (fields.length > 0) {
-                    return fields.some(field => {
-                        const value = this.getNestedValue(doc, field);
-                        return value && value.toString().toLowerCase().includes(searchTerm);
-                    });
-                }
-
-                // Buscar em todos os campos de string do documento
-                return this.searchInObject(doc, searchTerm);
-            });
-        } catch (error) {
-            console.error('Erro na busca:', error);
-            throw error;
-        }
-    }
-
-    // Métodos auxiliares
-    async readAll() {
-        try {
-            return await fs.readJson(this.filePath);
-        } catch (error) {
-            return [];
-        }
-    }
-
-    async writeAll(documents) {
-        await fs.writeJson(this.filePath, documents, { spaces: 2 });
-    }
-
-    async updateIndex(document) {
-        try {
-            const index = await fs.readJson(this.indexPath);
-            index[document.id] = {
-                id: document.id,
-                updatedAt: document.updatedAt
-            };
-            await fs.writeJson(this.indexPath, index, { spaces: 2 });
-        } catch (error) {
-            console.error('Erro ao atualizar índice:', error);
-        }
-    }
-
-    async removeFromIndex(id) {
-        try {
-            const index = await fs.readJson(this.indexPath);
-            delete index[id];
-            await fs.writeJson(this.indexPath, index, { spaces: 2 });
-        } catch (error) {
-            console.error('Erro ao remover do índice:', error);
-        }
-    }
-
-    matchesFilter(document, filter) {
-        return Object.entries(filter).every(([key, value]) => {
-            const docValue = this.getNestedValue(document, key);
-
-            if (typeof value === 'object' && value !== null) {
-                // Operadores especiais
-                if (value.$regex) {
-                    const regex = new RegExp(value.$regex, value.$options || 'i');
-                    return regex.test(docValue);
-                }
-                if (value.$in) {
-                    return value.$in.includes(docValue);
-                }
-                if (value.$gt) {
-                    return docValue > value.$gt;
-                }
-                if (value.$lt) {
-                    return docValue < value.$lt;
-                }
-                if (value.$gte) {
-                    return docValue >= value.$gte;
-                }
-                if (value.$lte) {
-                    return docValue <= value.$lte;
-                }
+    
+    // Helper method for value matching with support for regex and operators
+    matchValue(itemValue, queryValue) {
+        if (typeof queryValue === 'object' && queryValue !== null) {
+            // Handle query operators
+            if (queryValue.$regex) {
+                const regex = new RegExp(queryValue.$regex, queryValue.$options || '');
+                return regex.test(itemValue);
             }
-
-            return docValue === value;
-        });
-    }
-
-    getNestedValue(obj, path) {
-        return path.split('.').reduce((current, key) => {
-            return current && current[key] !== undefined ? current[key] : undefined;
-        }, obj);
-    }
-
-    sortDocuments(documents, sortOptions) {
-        return documents.sort((a, b) => {
-            for (const [field, direction] of Object.entries(sortOptions)) {
-                const valueA = this.getNestedValue(a, field);
-                const valueB = this.getNestedValue(b, field);
-
-                let comparison = 0;
-                if (valueA < valueB) comparison = -1;
-                if (valueA > valueB) comparison = 1;
-
-                if (comparison !== 0) {
-                    return direction === -1 ? -comparison : comparison;
-                }
-            }
-            return 0;
-        });
-    }
-
-    searchInObject(obj, searchTerm) {
-        for (const value of Object.values(obj)) {
-            if (typeof value === 'string' && value.toLowerCase().includes(searchTerm)) {
-                return true;
-            }
-            if (typeof value === 'object' && value !== null && this.searchInObject(value, searchTerm)) {
-                return true;
-            }
+            
+            if (queryValue.$gt !== undefined) return itemValue > queryValue.$gt;
+            if (queryValue.$gte !== undefined) return itemValue >= queryValue.$gte;
+            if (queryValue.$lt !== undefined) return itemValue < queryValue.$lt;
+            if (queryValue.$lte !== undefined) return itemValue <= queryValue.$lte;
+            if (queryValue.$ne !== undefined) return itemValue !== queryValue.$ne;
+            if (queryValue.$in) return queryValue.$in.includes(itemValue);
+            if (queryValue.$nin) return !queryValue.$nin.includes(itemValue);
         }
-        return false;
+        
+        // Default equality check
+        return itemValue === queryValue;
     }
 }
 

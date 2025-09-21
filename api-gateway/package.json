@@ -1,7 +1,7 @@
 {
     "name": "api-gateway",
     "version": "1.0.0",
-    "description": "API Gateway para Microsserviços com Circuit Breaker - PUC Minas",
+    "description": "API Gateway para Sistema de Listas de Compras com Microsserviços",
     "main": "server.js",
     "scripts": {
       "start": "node server.js",
@@ -32,7 +32,8 @@
       "cors": "^2.8.5",
       "helmet": "^7.1.0",
       "morgan": "^1.10.0",
-      "axios": "^1.6.0"
+      "axios": "^1.6.0",
+      "fs-extra": "^11.1.0"
     },
     "devDependencies": {
       "nodemon": "^3.0.0"

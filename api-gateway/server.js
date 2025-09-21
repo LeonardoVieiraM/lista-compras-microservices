@@ -3,24 +3,29 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const axios = require('axios');
+const path = require('path');
 
 // Importar service registry
 const serviceRegistry = require('../shared/serviceRegistry');
 
-class APIGateway {
+class ApiGateway {
     constructor() {
         this.app = express();
         this.port = process.env.PORT || 3000;
+        this.serviceName = 'api-gateway';
+        this.serviceUrl = `http://localhost:${this.port}`;
         
-        // Circuit breaker simples
-        this.circuitBreakers = new Map();
+        // Circuit breaker state
+        this.circuitBreakers = {
+            'user-service': { failures: 0, state: 'CLOSED', lastFailure: 0 },
+            'item-service': { failures: 0, state: 'CLOSED', lastFailure: 0 },
+            'list-service': { failures: 0, state: 'CLOSED', lastFailure: 0 }
+        };
         
         this.setupMiddleware();
         this.setupRoutes();
         this.setupErrorHandling();
-        setTimeout(() => {
-            this.startHealthChecks();
-        }, 3000); // Aguardar 3 segundos antes de iniciar health checks
+        this.startHealthChecks();
     }
 
     setupMiddleware() {
@@ -30,474 +35,412 @@ class APIGateway {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
 
-        // Gateway headers
+        // Service info headers
         this.app.use((req, res, next) => {
-            res.setHeader('X-Gateway', 'api-gateway');
-            res.setHeader('X-Gateway-Version', '1.0.0');
-            res.setHeader('X-Architecture', 'Microservices-NoSQL');
+            res.setHeader('X-Service', this.serviceName);
+            res.setHeader('X-Service-Version', '1.0.0');
+            res.setHeader('X-Gateway', 'Express');
             next();
         });
 
         // Request logging
         this.app.use((req, res, next) => {
-            console.log(`${req.method} ${req.originalUrl} - ${req.ip}`);
+            console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
             next();
         });
     }
 
     setupRoutes() {
-        // Gateway health check
-        this.app.get('/health', (req, res) => {
-            const services = serviceRegistry.listServices();
-            res.json({
-                service: 'api-gateway',
-                status: 'healthy',
-                timestamp: new Date().toISOString(),
-                architecture: 'Microservices with NoSQL',
-                services: services,
-                serviceCount: Object.keys(services).length
-            });
-        });
+        // Health check endpoint
+        this.app.get('/health', this.healthCheck.bind(this));
 
-        // Gateway info
+        // Service registry endpoint
+        this.app.get('/registry', this.getRegistry.bind(this));
+
+        // Service endpoints
+        this.app.use('/api/auth', this.proxyToService('user-service'));
+        this.app.use('/api/users', this.proxyToService('user-service'));
+        this.app.use('/api/items', this.proxyToService('item-service'));
+        this.app.use('/api/lists', this.proxyToService('list-service'));
+
+        // Aggregated endpoints
+        this.app.get('/api/dashboard', this.getDashboard.bind(this));
+        this.app.get('/api/search', this.globalSearch.bind(this));
+
+        // Root endpoint
         this.app.get('/', (req, res) => {
             res.json({
                 service: 'API Gateway',
                 version: '1.0.0',
-                description: 'Gateway para microsserviços com NoSQL',
-                architecture: 'Microservices with NoSQL databases',
-                database_approach: 'Database per Service (JSON-NoSQL)',
-                endpoints: {
-                    users: '/api/users/*',
-                    products: '/api/products/*',
-                    health: '/health',
-                    registry: '/registry',
-                    dashboard: '/api/dashboard',
-                    search: '/api/search'
-                },
-                services: serviceRegistry.listServices()
+                description: 'Gateway para Sistema de Listas de Compras com Microsserviços',
+                endpoints: [
+                    'GET /health - Status dos serviços',
+                    'GET /registry - Serviços registrados',
+                    'GET /api/dashboard - Dashboard do usuário',
+                    'GET /api/search - Busca global',
+                    '/api/auth/* - User Service',
+                    '/api/users/* - User Service', 
+                    '/api/items/* - Item Service',
+                    '/api/lists/* - List Service'
+                ]
             });
         });
-
-        // Service registry endpoint
-        this.app.get('/registry', (req, res) => {
-            const services = serviceRegistry.listServices();
-            res.json({
-                success: true,
-                services: services,
-                count: Object.keys(services).length,
-                timestamp: new Date().toISOString()
-            });
-        });
-
-        // Debug endpoint para troubleshooting
-        this.app.get('/debug/services', (req, res) => {
-            serviceRegistry.debugListServices();
-            res.json({
-                success: true,
-                services: serviceRegistry.listServices(),
-                stats: serviceRegistry.getStats()
-            });
-        });
-
-        // User Service routes - CORRIGIDO
-        this.app.use('/api/users', (req, res, next) => {
-            console.log(`🔗 Roteando para user-service: ${req.method} ${req.originalUrl}`);
-            this.proxyRequest('user-service', req, res, next);
-        });
-
-        // Product Service routes - CORRIGIDO  
-        this.app.use('/api/products', (req, res, next) => {
-            console.log(`🔗 Roteando para product-service: ${req.method} ${req.originalUrl}`);
-            this.proxyRequest('product-service', req, res, next);
-        });
-
-        // Endpoints agregados
-        this.app.get('/api/dashboard', this.getDashboard.bind(this));
-        this.app.get('/api/search', this.globalSearch.bind(this));
     }
+
     setupErrorHandling() {
-        // 404 handler
         this.app.use('*', (req, res) => {
             res.status(404).json({
                 success: false,
                 message: 'Endpoint não encontrado',
-                service: 'api-gateway',
-                availableEndpoints: {
-                    users: '/api/users',
-                    products: '/api/products',
-                    dashboard: '/api/dashboard',
-                    search: '/api/search'
-                }
+                service: this.serviceName
             });
         });
 
-        // Error handler
         this.app.use((error, req, res, next) => {
-            console.error('Gateway Error:', error);
+            console.error('API Gateway Error:', error);
             res.status(500).json({
                 success: false,
                 message: 'Erro interno do gateway',
-                service: 'api-gateway'
+                service: this.serviceName
             });
         });
     }
 
-    // Proxy request to service
-    async proxyRequest(serviceName, req, res, next) {
+    // Health check for all services
+    async healthCheck(req, res) {
         try {
-            console.log(`🔄 Proxy request: ${req.method} ${req.originalUrl} -> ${serviceName}`);
+            const services = serviceRegistry.getAllServices();
+            const healthResults = {};
             
-            // Verificar circuit breaker
-            if (this.isCircuitOpen(serviceName)) {
-                console.log(`⚡ Circuit breaker open for ${serviceName}`);
-                return res.status(503).json({
-                    success: false,
-                    message: `Serviço ${serviceName} temporariamente indisponível`,
-                    service: serviceName
-                });
-            }
-
-            // Descobrir serviço com debug
-            let service;
-            try {
-                service = serviceRegistry.discover(serviceName);
-            } catch (error) {
-                console.error(`❌ Erro na descoberta do serviço ${serviceName}:`, error.message);
-                
-                // Debug: listar serviços disponíveis
-                const availableServices = serviceRegistry.listServices();
-                console.log(`📋 Serviços disponíveis:`, Object.keys(availableServices));
-                
-                return res.status(503).json({
-                    success: false,
-                    message: `Serviço ${serviceName} não encontrado`,
-                    service: serviceName,
-                    availableServices: Object.keys(availableServices)
-                });
-            }
-            
-            // Construir URL de destino corrigida
-            const originalPath = req.originalUrl;
-            let targetPath = '';
-            
-            // Extrair o path correto baseado no serviço
-            if (serviceName === 'user-service') {
-                // /api/users/auth/login -> /auth/login
-                // /api/users -> /users
-                // /api/users/123 -> /users/123
-                targetPath = originalPath.replace('/api/users', '');
-                if (!targetPath.startsWith('/')) {
-                    targetPath = '/' + targetPath;
-                }
-                // Se path vazio, usar /users
-                if (targetPath === '/' || targetPath === '') {
-                    targetPath = '/users';
-                }
-            } else if (serviceName === 'product-service') {
-                // /api/products -> /products
-                // /api/products/123 -> /products/123
-                targetPath = originalPath.replace('/api/products', '');
-                if (!targetPath.startsWith('/')) {
-                    targetPath = '/' + targetPath;
-                }
-                // Se path vazio, usar /products
-                if (targetPath === '/' || targetPath === '') {
-                    targetPath = '/products';
+            for (const [serviceName, serviceInfo] of Object.entries(services)) {
+                try {
+                    const response = await axios.get(`${serviceInfo.url}/health`, { timeout: 3000 });
+                    healthResults[serviceName] = {
+                        status: 'healthy',
+                        data: response.data
+                    };
+                    
+                    // Reset circuit breaker on success
+                    if (this.circuitBreakers[serviceName]) {
+                        this.circuitBreakers[serviceName].failures = 0;
+                        this.circuitBreakers[serviceName].state = 'CLOSED';
+                    }
+                } catch (error) {
+                    healthResults[serviceName] = {
+                        status: 'unhealthy',
+                        error: error.message
+                    };
+                    
+                    // Update circuit breaker on failure
+                    if (this.circuitBreakers[serviceName]) {
+                        this.circuitBreakers[serviceName].failures++;
+                        this.circuitBreakers[serviceName].lastFailure = Date.now();
+                        
+                        if (this.circuitBreakers[serviceName].failures >= 3) {
+                            this.circuitBreakers[serviceName].state = 'OPEN';
+                            console.warn(`Circuit breaker OPEN for ${serviceName}`);
+                        }
+                    }
                 }
             }
             
-            const targetUrl = `${service.url}${targetPath}`;
-            
-            console.log(`🎯 Target URL: ${targetUrl}`);
-            
-            // Configurar requisição
-            const config = {
-                method: req.method,
-                url: targetUrl,
-                headers: { ...req.headers },
-                timeout: 10000,
-                family: 4,  // Força IPv4
-                validateStatus: function (status) {
-                    return status < 500; // Aceitar todos os status < 500
-                }
-            };
-
-            // Adicionar body para requisições POST/PUT/PATCH
-            if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
-                config.data = req.body;
-            }
-
-            // Adicionar query parameters
-            if (Object.keys(req.query).length > 0) {
-                config.params = req.query;
-            }
-
-            // Remover headers problemáticos
-            delete config.headers.host;
-            delete config.headers['content-length'];
-
-            console.log(`📤 Enviando ${req.method} para ${targetUrl}`);
-
-            // Fazer requisição
-            const response = await axios(config);
-            
-            // Resetar circuit breaker em caso de sucesso
-            this.resetCircuitBreaker(serviceName);
-            
-            console.log(`📥 Resposta recebida: ${response.status}`);
-            
-            // Retornar resposta
-            res.status(response.status).json(response.data);
-
-        } catch (error) {
-            // Registrar falha
-            this.recordFailure(serviceName);
-            
-            console.error(`❌ Proxy error for ${serviceName}:`, {
-                message: error.message,
-                code: error.code,
-                url: error.config?.url,
-                status: error.response?.status
+            res.json({
+                gateway: {
+                    service: this.serviceName,
+                    status: 'healthy',
+                    timestamp: new Date().toISOString(),
+                    uptime: process.uptime()
+                },
+                services: healthResults,
+                circuitBreakers: this.circuitBreakers
             });
-            
-            if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
-                res.status(503).json({
-                    success: false,
-                    message: `Serviço ${serviceName} indisponível`,
-                    service: serviceName,
-                    error: error.code
-                });
-            } else if (error.response) {
-                // Encaminhar resposta de erro do serviço
-                console.log(`🔄 Encaminhando erro ${error.response.status} do serviço`);
-                res.status(error.response.status).json(error.response.data);
-            } else {
-                res.status(500).json({
-                    success: false,
-                    message: 'Erro interno do gateway',
-                    service: 'api-gateway',
-                    error: error.message
-                });
+        } catch (error) {
+            res.status(503).json({
+                service: this.serviceName,
+                status: 'unhealthy',
+                error: error.message
+            });
+        }
+    }
+
+    // Get service registry
+    getRegistry(req, res) {
+        const services = serviceRegistry.getAllServices();
+        res.json({
+            success: true,
+            data: services,
+            count: Object.keys(services).length
+        });
+    }
+
+    // Proxy requests to services
+    proxyToService(serviceName) {
+        return async (req, res) => {
+            // Check circuit breaker
+            if (this.circuitBreakers[serviceName]?.state === 'OPEN') {
+                const timeSinceLastFailure = Date.now() - this.circuitBreakers[serviceName].lastFailure;
+                
+                // Try to close circuit after 30 seconds
+                if (timeSinceLastFailure > 30000) {
+                    this.circuitBreakers[serviceName].state = 'HALF-OPEN';
+                    console.log(`Circuit breaker HALF-OPEN for ${serviceName}`);
+                } else {
+                    return res.status(503).json({
+                        success: false,
+                        message: `Serviço ${serviceName} temporariamente indisponível`,
+                        circuitBreaker: 'OPEN'
+                    });
+                }
             }
-        }
-    }
-    // Circuit Breaker 
-    isCircuitOpen(serviceName) {
-        const breaker = this.circuitBreakers.get(serviceName);
-        if (!breaker) return false;
-
-        const now = Date.now();
-        
-        // Verificar se o circuito deve ser meio-aberto
-        if (breaker.isOpen && (now - breaker.lastFailure) > 30000) { // 30 segundos
-            breaker.isOpen = false;
-            breaker.isHalfOpen = true;
-            console.log(`Circuit breaker half-open for ${serviceName}`);
-            return false;
-        }
-
-        return breaker.isOpen;
-    }
-
-    recordFailure(serviceName) {
-        let breaker = this.circuitBreakers.get(serviceName) || {
-            failures: 0,
-            isOpen: false,
-            isHalfOpen: false,
-            lastFailure: null
+            
+            try {
+                // Discover service
+                const service = serviceRegistry.discover(serviceName);
+                if (!service) {
+                    return res.status(503).json({
+                        success: false,
+                        message: `Serviço ${serviceName} não encontrado`
+                    });
+                }
+                
+                // Build target URL
+                const targetUrl = `${service.url}${req.originalUrl.replace(`/api/${serviceName.split('-')[0]}`, '')}`;
+                
+                // Forward request
+                const response = await axios({
+                    method: req.method,
+                    url: targetUrl,
+                    data: req.body,
+                    headers: {
+                        ...req.headers,
+                        host: new URL(service.url).host
+                    },
+                    timeout: 10000
+                });
+                
+                // If circuit was half-open, close it on success
+                if (this.circuitBreakers[serviceName]?.state === 'HALF-OPEN') {
+                    this.circuitBreakers[serviceName].state = 'CLOSED';
+                    this.circuitBreakers[serviceName].failures = 0;
+                    console.log(`Circuit breaker CLOSED for ${serviceName}`);
+                }
+                
+                // Forward response
+                res.status(response.status).json(response.data);
+            } catch (error) {
+                console.error(`Proxy error for ${serviceName}:`, error.message);
+                
+                // Update circuit breaker
+                if (this.circuitBreakers[serviceName]) {
+                    this.circuitBreakers[serviceName].failures++;
+                    this.circuitBreakers[serviceName].lastFailure = Date.now();
+                    
+                    if (this.circuitBreakers[serviceName].failures >= 3) {
+                        this.circuitBreakers[serviceName].state = 'OPEN';
+                        console.warn(`Circuit breaker OPEN for ${serviceName}`);
+                    } else if (this.circuitBreakers[serviceName].state === 'HALF-OPEN') {
+                        this.circuitBreakers[serviceName].state = 'OPEN';
+                        console.warn(`Circuit breaker OPEN for ${serviceName} (half-open failed)`);
+                    }
+                }
+                
+                if (error.response) {
+                    // Forward error response from service
+                    res.status(error.response.status).json(error.response.data);
+                } else {
+                    res.status(503).json({
+                        success: false,
+                        message: `Serviço ${serviceName} indisponível`,
+                        error: error.message
+                    });
+                }
+            }
         };
-
-        breaker.failures++;
-        breaker.lastFailure = Date.now();
-
-        // Abrir circuito após 3 falhas
-        if (breaker.failures >= 3) {
-            breaker.isOpen = true;
-            breaker.isHalfOpen = false;
-            console.log(`Circuit breaker opened for ${serviceName}`);
-        }
-
-        this.circuitBreakers.set(serviceName, breaker);
     }
 
-    resetCircuitBreaker(serviceName) {
-        const breaker = this.circuitBreakers.get(serviceName);
-        if (breaker) {
-            breaker.failures = 0;
-            breaker.isOpen = false;
-            breaker.isHalfOpen = false;
-            console.log(`Circuit breaker reset for ${serviceName}`);
-        }
-    }
-
-    // Dashboard agregado
+    // Dashboard endpoint (aggregates data from multiple services)
     async getDashboard(req, res) {
         try {
             const authHeader = req.header('Authorization');
             
-            if (!authHeader) {
+            if (!authHeader?.startsWith('Bearer ')) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Token de autenticação obrigatório'
+                    message: 'Token obrigatório'
                 });
             }
-
-            // Buscar dados de múltiplos serviços
-            const [userResponse, productsResponse, categoriesResponse] = await Promise.allSettled([
-                this.callService('user-service', '/users', 'GET', authHeader, { limit: 5 }),
-                this.callService('product-service', '/products', 'GET', null, { limit: 5 }),
-                this.callService('product-service', '/categories', 'GET', null, {})
-            ]);
-
-            const dashboard = {
-                timestamp: new Date().toISOString(),
-                architecture: 'Microservices with NoSQL',
-                database_approach: 'Database per Service',
-                services_status: serviceRegistry.listServices(),
-                data: {
-                    users: {
-                        available: userResponse.status === 'fulfilled',
-                        data: userResponse.status === 'fulfilled' ? userResponse.value.data : null,
-                        error: userResponse.status === 'rejected' ? userResponse.reason.message : null
-                    },
-                    products: {
-                        available: productsResponse.status === 'fulfilled',
-                        data: productsResponse.status === 'fulfilled' ? productsResponse.value.data : null,
-                        error: productsResponse.status === 'rejected' ? productsResponse.reason.message : null
-                    },
-                    categories: {
-                        available: categoriesResponse.status === 'fulfilled',
-                        data: categoriesResponse.status === 'fulfilled' ? categoriesResponse.value.data : null,
-                        error: categoriesResponse.status === 'rejected' ? categoriesResponse.reason.message : null
-                    }
-                }
-            };
-
+            
+            const token = authHeader.replace('Bearer ', '');
+            
+            // Validate token and get user info
+            const userService = serviceRegistry.discover('user-service');
+            const userResponse = await axios.post(`${userService.url}/auth/validate`, { token }, { timeout: 5000 });
+            
+            if (!userResponse.data.success) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Token inválido'
+                });
+            }
+            
+            const user = userResponse.data.data.user;
+            
+            // Get user's lists
+            const listService = serviceRegistry.discover('list-service');
+            const listsResponse = await axios.get(`${listService.url}/lists`, {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 5000
+            });
+            
+            const lists = listsResponse.data.success ? listsResponse.data.data : [];
+            
+            // Get active items count
+            const itemService = serviceRegistry.discover('item-service');
+            const itemsResponse = await axios.get(`${itemService.url}/items?active=true&limit=1`, { timeout: 5000 });
+            
+            const totalItems = itemsResponse.data.success ? itemsResponse.data.pagination.total : 0;
+            
+            // Calculate dashboard statistics
+            const activeLists = lists.filter(list => list.status === 'active').length;
+            const completedLists = lists.filter(list => list.status === 'completed').length;
+            const totalEstimated = lists.reduce((sum, list) => sum + list.summary.estimatedTotal, 0);
+            
             res.json({
                 success: true,
-                data: dashboard
+                data: {
+                    user: {
+                        id: user.id,
+                        username: user.username,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        preferences: user.preferences
+                    },
+                    statistics: {
+                        totalLists: lists.length,
+                        activeLists,
+                        completedLists,
+                        totalItems,
+                        totalEstimated: parseFloat(totalEstimated.toFixed(2))
+                    },
+                    recentLists: lists.slice(0, 5).map(list => ({
+                        id: list.id,
+                        name: list.name,
+                        status: list.status,
+                        itemCount: list.summary.totalItems,
+                        purchasedCount: list.summary.purchasedItems,
+                        estimatedTotal: list.summary.estimatedTotal,
+                        updatedAt: list.updatedAt
+                    }))
+                }
             });
-
         } catch (error) {
-            console.error('Erro no dashboard:', error);
+            console.error('Dashboard error:', error.message);
             res.status(500).json({
                 success: false,
-                message: 'Erro ao agregar dados do dashboard'
+                message: 'Erro ao carregar dashboard',
+                error: error.message
             });
         }
     }
 
-    // Busca global entre serviços
+    // Global search across services
     async globalSearch(req, res) {
         try {
             const { q } = req.query;
-
+            
             if (!q) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Parâmetro de busca "q" é obrigatório'
+                    message: 'Parâmetro de busca (q) é obrigatório'
                 });
             }
-
-            // Buscar em produtos e usuários (se autenticado)
-            const authHeader = req.header('Authorization');
-            const searches = [
-                this.callService('product-service', '/search', 'GET', null, { q })
-            ];
-
-            // Adicionar busca de usuários se autenticado
-            if (authHeader) {
-                searches.push(
-                    this.callService('user-service', '/search', 'GET', authHeader, { q, limit: 5 })
-                );
-            }
-
-            const [productResults, userResults] = await Promise.allSettled(searches);
-
-            const results = {
-                query: q,
-                products: {
-                    available: productResults.status === 'fulfilled',
-                    results: productResults.status === 'fulfilled' ? productResults.value.data.results : [],
-                    error: productResults.status === 'rejected' ? productResults.reason.message : null
+            
+            const results = {};
+            
+            // Search items
+            try {
+                const itemService = serviceRegistry.discover('item-service');
+                const response = await axios.get(`${itemService.url}/search?q=${encodeURIComponent(q)}&limit=10`, { timeout: 5000 });
+                
+                if (response.data.success) {
+                    results.items = response.data.data;
                 }
-            };
-
-            // Adicionar resultados de usuários se a busca foi feita
-            if (userResults) {
-                results.users = {
-                    available: userResults.status === 'fulfilled',
-                    results: userResults.status === 'fulfilled' ? userResults.value.data.results : [],
-                    error: userResults.status === 'rejected' ? userResults.reason.message : null
-                };
+            } catch (error) {
+                console.error('Item search error:', error.message);
+                results.itemsError = error.message;
             }
-
+            
+            // If authenticated, search lists too
+            const authHeader = req.header('Authorization');
+            if (authHeader?.startsWith('Bearer ')) {
+                try {
+                    const token = authHeader.replace('Bearer ', '');
+                    const listService = serviceRegistry.discover('list-service');
+                    
+                    // Get all user's lists and filter by name
+                    const response = await axios.get(`${listService.url}/lists`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                        timeout: 5000
+                    });
+                    
+                    if (response.data.success) {
+                        const lists = response.data.data;
+                        results.lists = lists.filter(list => 
+                            list.name.toLowerCase().includes(q.toLowerCase())
+                        ).slice(0, 5);
+                    }
+                } catch (error) {
+                    console.error('List search error:', error.message);
+                    results.listsError = error.message;
+                }
+            }
+            
             res.json({
                 success: true,
-                data: results
+                data: results,
+                search: {
+                    query: q,
+                    timestamp: new Date().toISOString()
+                }
             });
-
         } catch (error) {
-            console.error('Erro na busca global:', error);
+            console.error('Global search error:', error);
             res.status(500).json({
                 success: false,
-                message: 'Erro na busca'
+                message: 'Erro na busca global',
+                error: error.message
             });
         }
     }
 
-    // Helper para chamar serviços
-    async callService(serviceName, path, method = 'GET', authHeader = null, params = {}) {
-        const service = serviceRegistry.discover(serviceName);
-        
-        const config = {
-            method,
-            url: `${service.url}${path}`,
-            timeout: 5000
-        };
-
-        if (authHeader) {
-            config.headers = { Authorization: authHeader };
-        }
-
-        if (method === 'GET' && Object.keys(params).length > 0) {
-            config.params = params;
-        }
-
-        const response = await axios(config);
-        return response.data;
-    }
-
-    // Health checks para serviços registrados
+    // Start periodic health checks
     startHealthChecks() {
         setInterval(async () => {
-            await serviceRegistry.performHealthChecks();
-        }, 30000); // A cada 30 segundos
-
-        // Health check inicial
-        setTimeout(async () => {
-            await serviceRegistry.performHealthChecks();
-        }, 5000);
+            try {
+                const services = serviceRegistry.getAllServices();
+                
+                for (const [serviceName, serviceInfo] of Object.entries(services)) {
+                    try {
+                        await axios.get(`${serviceInfo.url}/health`, { timeout: 3000 });
+                        serviceRegistry.updateHealth(serviceName, true);
+                    } catch (error) {
+                        console.warn(`Health check failed for ${serviceName}:`, error.message);
+                        serviceRegistry.updateHealth(serviceName, false);
+                    }
+                }
+            } catch (error) {
+                console.error('Health check interval error:', error);
+            }
+        }, 30000); // Check every 30 seconds
     }
 
     start() {
         this.app.listen(this.port, () => {
             console.log('=====================================');
             console.log(`API Gateway iniciado na porta ${this.port}`);
-            console.log(`URL: http://localhost:${this.port}`);
-            console.log(`Health: http://localhost:${this.port}/health`);
-            console.log(`Registry: http://localhost:${this.port}/registry`);
-            console.log(`Dashboard: http://localhost:${this.port}/api/dashboard`);
-            console.log(`Architecture: Microservices with NoSQL`);
-            console.log('=====================================');
-            console.log('Rotas disponíveis:');
-            console.log('   POST /api/auth/register');
-            console.log('   POST /api/auth/login');
-            console.log('   GET  /api/users');
-            console.log('   GET  /api/products');
-            console.log('   GET  /api/search?q=termo');
-            console.log('   GET  /api/dashboard');
+            console.log(`URL: ${this.serviceUrl}`);
+            console.log(`Health: ${this.serviceUrl}/health`);
+            console.log(`Registry: ${this.serviceUrl}/registry`);
             console.log('=====================================');
         });
     }
@@ -505,12 +448,8 @@ class APIGateway {
 
 // Start gateway
 if (require.main === module) {
-    const gateway = new APIGateway();
-    gateway.start();
-
-    // Graceful shutdown
-    process.on('SIGTERM', () => process.exit(0));
-    process.on('SIGINT', () => process.exit(0));
+    const apiGateway = new ApiGateway();
+    apiGateway.start();
 }
 
-module.exports = APIGateway;
+module.exports = ApiGateway;
