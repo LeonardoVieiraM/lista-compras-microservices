@@ -1,0 +1,18 @@
+{
+  "user-service": {
+    "url": "http://localhost:3001",
+    "version": "1.0.0",
+    "database": "JSON-NoSQL",
+    "endpoints": [
+      "/health",
+      "/auth/register",
+      "/auth/login",
+      "/users",
+      "/search"
+    ],
+    "registeredAt": 1757984817584,
+    "lastHealthCheck": 1757984847598,
+    "healthy": true,
+    "pid": 10776
+  }
+}

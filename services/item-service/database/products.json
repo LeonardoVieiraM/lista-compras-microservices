@@ -1,0 +1,159 @@
+[
+  {
+    "id": "bf158d80-8725-4591-92e1-67ad0a4b8a83",
+    "name": "Smartphone Premium",
+    "description": "Smartphone tela 6.1\", 128GB, câmera 48MP",
+    "price": 1299.99,
+    "stock": 15,
+    "category": {
+      "name": "Eletrônicos",
+      "slug": "eletronicos"
+    },
+    "images": [
+      "https://via.placeholder.com/300x300?text=Smartphone+1",
+      "https://via.placeholder.com/300x300?text=Smartphone+2"
+    ],
+    "tags": [
+      "smartphone",
+      "tecnologia",
+      "celular"
+    ],
+    "specifications": {
+      "brand": "TechBrand",
+      "model": "Premium X1",
+      "storage": "128GB",
+      "ram": "8GB",
+      "camera": "48MP"
+    },
+    "active": true,
+    "featured": true,
+    "createdAt": "2025-09-09T00:16:49.796Z",
+    "updatedAt": "2025-09-09T00:16:49.797Z"
+  },
+  {
+    "id": "391fceb0-c24b-49b2-b8b0-82d3fb0cbc95",
+    "name": "Notebook Gamer",
+    "description": "Notebook Intel i7, 16GB RAM, RTX 3060",
+    "price": 3499.99,
+    "stock": 8,
+    "category": {
+      "name": "Eletrônicos",
+      "slug": "eletronicos"
+    },
+    "images": [
+      "https://via.placeholder.com/300x300?text=Notebook+1"
+    ],
+    "tags": [
+      "notebook",
+      "gamer",
+      "computador"
+    ],
+    "specifications": {
+      "brand": "GameTech",
+      "processor": "Intel i7",
+      "ram": "16GB",
+      "graphics": "RTX 3060",
+      "storage": "512GB SSD"
+    },
+    "active": true,
+    "featured": false,
+    "createdAt": "2025-09-09T00:16:49.799Z",
+    "updatedAt": "2025-09-09T00:16:49.799Z"
+  },
+  {
+    "id": "4d3c9c0e-42a3-4c11-8daa-61759669bc13",
+    "name": "Fone Bluetooth",
+    "description": "Fone sem fio com cancelamento de ruído",
+    "price": 299.99,
+    "stock": 25,
+    "category": {
+      "name": "Acessórios",
+      "slug": "acessorios"
+    },
+    "images": [
+      "https://via.placeholder.com/300x300?text=Fone+1"
+    ],
+    "tags": [
+      "fone",
+      "bluetooth",
+      "audio"
+    ],
+    "specifications": {
+      "brand": "AudioMax",
+      "connectivity": "Bluetooth 5.0",
+      "battery": "30h",
+      "noiseCancellation": true
+    },
+    "active": true,
+    "featured": true,
+    "createdAt": "2025-09-09T00:16:49.801Z",
+    "updatedAt": "2025-09-09T00:16:49.801Z"
+  },
+  {
+    "id": "8e8ebf4b-ccfa-497e-8818-f6ba9e0f452b",
+    "name": "Camiseta Básica",
+    "description": "Camiseta 100% algodão, várias cores",
+    "price": 39.99,
+    "stock": 50,
+    "category": {
+      "name": "Roupas",
+      "slug": "roupas"
+    },
+    "images": [
+      "https://via.placeholder.com/300x300?text=Camiseta+1"
+    ],
+    "tags": [
+      "camiseta",
+      "básica",
+      "algodão"
+    ],
+    "specifications": {
+      "material": "100% Algodão",
+      "sizes": [
+        "P",
+        "M",
+        "G",
+        "GG"
+      ],
+      "colors": [
+        "Branco",
+        "Preto",
+        "Azul",
+        "Verde"
+      ]
+    },
+    "active": true,
+    "featured": false,
+    "createdAt": "2025-09-09T00:16:49.803Z",
+    "updatedAt": "2025-09-09T00:16:49.803Z"
+  },
+  {
+    "id": "a41a9a28-57c2-4d94-b9f8-82352cf88f64",
+    "name": "Produto Demo NoSQL",
+    "description": "Produto criado via demo com banco NoSQL",
+    "price": 99.99,
+    "stock": 10,
+    "category": {
+      "name": "Demo",
+      "slug": "demo"
+    },
+    "images": [],
+    "tags": [
+      "demo",
+      "nosql",
+      "teste"
+    ],
+    "specifications": {
+      "material": "Digital",
+      "cor": "Virtual"
+    },
+    "active": true,
+    "featured": true,
+    "metadata": {
+      "createdBy": "60b8876f-f3e0-4b13-9144-3eba7c05f43c",
+      "createdByName": "Demo User"
+    },
+    "createdAt": "2025-09-09T00:17:09.633Z",
+    "updatedAt": "2025-09-09T00:17:09.633Z"
+  }
+]
