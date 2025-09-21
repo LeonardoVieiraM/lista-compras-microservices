@@ -1,7 +1,7 @@
 {
     "name": "list-service",
     "version": "1.0.0",
-    "description": "Microsserviço de Produtos com Banco NoSQL - PUC Minas",
+    "description": "Microsserviço de de Listas para Sistema de Listas de Compras",
     "main": "server.js",
     "scripts": {
       "start": "node server.js",

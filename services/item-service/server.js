@@ -13,7 +13,7 @@ const serviceRegistry = require('../../shared/serviceRegistry');
 class ItemService {
     constructor() {
         this.app = express();
-        this.port = process.env.PORT || 3002;
+        this.port = process.env.PORT || 3003;
         this.serviceName = 'item-service';
         this.serviceUrl = `http://127.0.0.1:${this.port}`;
         
@@ -31,106 +31,259 @@ class ItemService {
     }
 
     async seedInitialData() {
-        // Aguardar inicialização e criar produtos exemplo
+        // Aguardar inicialização e criar itens exemplo
         setTimeout(async () => {
             try {
                 const existingItems = await this.itemsDb.find();
                 
                 if (existingItems.length === 0) {
                     const sampleItems = [
+                        // Alimentos (5 itens)
                         {
                             id: uuidv4(),
-                            name: 'Smartphone Premium',
-                            description: 'Smartphone tela 6.1", 128GB, câmera 48MP',
-                            price: 1299.99,
-                            stock: 15,
-                            category: {
-                                name: 'Eletrônicos',
-                                slug: 'eletronicos'
-                            },
-                            images: [
-                                'https://via.placeholder.com/300x300?text=Smartphone+1',
-                                'https://via.placeholder.com/300x300?text=Smartphone+2'
-                            ],
-                            tags: ['smartphone', 'tecnologia', 'celular'],
-                            specifications: {
-                                brand: 'TechBrand',
-                                model: 'Premium X1',
-                                storage: '128GB',
-                                ram: '8GB',
-                                camera: '48MP'
-                            },
+                            name: 'Arroz',
+                            category: 'Alimentos',
+                            brand: 'Tio João',
+                            unit: 'kg',
+                            averagePrice: 5.99,
+                            barcode: '7891234567890',
+                            description: 'Arroz branco tipo 1',
                             active: true,
-                            featured: true
+                            createdAt: new Date().toISOString()
                         },
                         {
                             id: uuidv4(),
-                            name: 'Notebook Gamer',
-                            description: 'Notebook Intel i7, 16GB RAM, RTX 3060',
-                            price: 3499.99,
-                            stock: 8,
-                            category: {
-                                name: 'Eletrônicos',
-                                slug: 'eletronicos'
-                            },
-                            images: [
-                                'https://via.placeholder.com/300x300?text=Notebook+1'
-                            ],
-                            tags: ['notebook', 'gamer', 'computador'],
-                            specifications: {
-                                brand: 'GameTech',
-                                processor: 'Intel i7',
-                                ram: '16GB',
-                                graphics: 'RTX 3060',
-                                storage: '512GB SSD'
-                            },
+                            name: 'Feijão',
+                            category: 'Alimentos',
+                            brand: 'Camil',
+                            unit: 'kg',
+                            averagePrice: 8.49,
+                            barcode: '7891234567891',
+                            description: 'Feijão carioca',
                             active: true,
-                            featured: false
+                            createdAt: new Date().toISOString()
                         },
                         {
                             id: uuidv4(),
-                            name: 'Fone Bluetooth',
-                            description: 'Fone sem fio com cancelamento de ruído',
-                            price: 299.99,
-                            stock: 25,
-                            category: {
-                                name: 'Acessórios',
-                                slug: 'acessorios'
-                            },
-                            images: [
-                                'https://via.placeholder.com/300x300?text=Fone+1'
-                            ],
-                            tags: ['fone', 'bluetooth', 'audio'],
-                            specifications: {
-                                brand: 'AudioMax',
-                                connectivity: 'Bluetooth 5.0',
-                                battery: '30h',
-                                noiseCancellation: true
-                            },
+                            name: 'Açúcar',
+                            category: 'Alimentos',
+                            brand: 'União',
+                            unit: 'kg',
+                            averagePrice: 4.29,
+                            barcode: '7891234567892',
+                            description: 'Açúcar refinado',
                             active: true,
-                            featured: true
+                            createdAt: new Date().toISOString()
                         },
                         {
                             id: uuidv4(),
-                            name: 'Camiseta Básica',
-                            description: 'Camiseta 100% algodão, várias cores',
-                            price: 39.99,
-                            stock: 50,
-                            category: {
-                                name: 'Roupas',
-                                slug: 'roupas'
-                            },
-                            images: [
-                                'https://via.placeholder.com/300x300?text=Camiseta+1'
-                            ],
-                            tags: ['camiseta', 'básica', 'algodão'],
-                            specifications: {
-                                material: '100% Algodão',
-                                sizes: ['P', 'M', 'G', 'GG'],
-                                colors: ['Branco', 'Preto', 'Azul', 'Verde']
-                            },
+                            name: 'Óleo de Soja',
+                            category: 'Alimentos',
+                            brand: 'Liza',
+                            unit: 'litro',
+                            averagePrice: 7.99,
+                            barcode: '7891234567893',
+                            description: 'Óleo de soja refinado',
                             active: true,
-                            featured: false
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Farinha de Trigo',
+                            category: 'Alimentos',
+                            brand: 'Dona Benta',
+                            unit: 'kg',
+                            averagePrice: 4.89,
+                            barcode: '7891234567894',
+                            description: 'Farinha de trigo especial',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        
+                        // Limpeza (5 itens)
+                        {
+                            id: uuidv4(),
+                            name: 'Detergente',
+                            category: 'Limpeza',
+                            brand: 'Ypê',
+                            unit: 'un',
+                            averagePrice: 2.49,
+                            barcode: '7891234567895',
+                            description: 'Detergente líquido neutro',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Sabão em Pó',
+                            category: 'Limpeza',
+                            brand: 'Omo',
+                            unit: 'kg',
+                            averagePrice: 15.90,
+                            barcode: '7891234567896',
+                            description: 'Sabão em pó multiuso',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Água Sanitária',
+                            category: 'Limpeza',
+                            brand: 'Qboa',
+                            unit: 'litro',
+                            averagePrice: 6.99,
+                            barcode: '7891234567897',
+                            description: 'Água sanitária concentrada',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Desinfetante',
+                            category: 'Limpeza',
+                            brand: 'Pinho Sol',
+                            unit: 'litro',
+                            averagePrice: 9.49,
+                            barcode: '7891234567898',
+                            description: 'Desinfetante aroma pinho',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Esponja de Aço',
+                            category: 'Limpeza',
+                            brand: 'Bombril',
+                            unit: 'un',
+                            averagePrice: 3.99,
+                            barcode: '7891234567899',
+                            description: 'Esponja de aço para limpeza',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        
+                        // Higiene (5 itens)
+                        {
+                            id: uuidv4(),
+                            name: 'Sabonete',
+                            category: 'Higiene',
+                            brand: 'Dove',
+                            unit: 'un',
+                            averagePrice: 2.99,
+                            barcode: '7891234567800',
+                            description: 'Sabonete hidratante',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Shampoo',
+                            category: 'Higiene',
+                            brand: 'Pantene',
+                            unit: 'ml',
+                            averagePrice: 14.90,
+                            barcode: '7891234567801',
+                            description: 'Shampoo reparação completa',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Creme Dental',
+                            category: 'Higiene',
+                            brand: 'Colgate',
+                            unit: 'un',
+                            averagePrice: 5.49,
+                            barcode: '7891234567802',
+                            description: 'Creme dental total 12',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Papel Higiênico',
+                            category: 'Higiene',
+                            brand: 'Neve',
+                            unit: 'un',
+                            averagePrice: 12.99,
+                            barcode: '7891234567803',
+                            description: 'Papel higiênico folha dupla',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Desodorante',
+                            category: 'Higiene',
+                            brand: 'Rexona',
+                            unit: 'un',
+                            averagePrice: 11.90,
+                            barcode: '7891234567804',
+                            description: 'Desodorante aerosol masculino',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        
+                        // Bebidas (5 itens)
+                        {
+                            id: uuidv4(),
+                            name: 'Refrigerante',
+                            category: 'Bebidas',
+                            brand: 'Coca-Cola',
+                            unit: 'litro',
+                            averagePrice: 8.99,
+                            barcode: '7891234567805',
+                            description: 'Refrigerante cola',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Suco de Laranja',
+                            category: 'Bebidas',
+                            brand: 'Del Valle',
+                            unit: 'litro',
+                            averagePrice: 9.49,
+                            barcode: '7891234567806',
+                            description: 'Suco integral de laranja',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Água Mineral',
+                            category: 'Bebidas',
+                            brand: 'Crystal',
+                            unit: 'litro',
+                            averagePrice: 2.99,
+                            barcode: '7891234567807',
+                            description: 'Água mineral sem gás',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Cerveja',
+                            category: 'Bebidas',
+                            brand: 'Skol',
+                            unit: 'ml',
+                            averagePrice: 3.49,
+                            barcode: '7891234567808',
+                            description: 'Cerveja pilsen lata 350ml',
+                            active: true,
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: uuidv4(),
+                            name: 'Leite',
+                            category: 'Bebidas',
+                            brand: 'Itambé',
+                            unit: 'litro',
+                            averagePrice: 4.79,
+                            barcode: '7891234567809',
+                            description: 'Leite integral UHT',
+                            active: true,
+                            createdAt: new Date().toISOString()
                         }
                     ];
 
@@ -138,7 +291,7 @@ class ItemService {
                         await this.itemsDb.create(item);
                     }
 
-                    console.log('Produtos de exemplo criados no Item Service');
+                    console.log('Itens de exemplo criados no Item Service');
                 }
             } catch (error) {
                 console.error('Erro ao criar dados iniciais:', error);
@@ -195,15 +348,13 @@ class ItemService {
             res.json({
                 service: 'Item Service',
                 version: '1.0.0',
-                description: 'Microsserviço para gerenciamento de produtos com NoSQL',
+                description: 'Microsserviço para gerenciamento de itens',
                 database: 'JSON-NoSQL',
                 endpoints: [
                     'GET /items',
                     'GET /items/:id',
                     'POST /items',
                     'PUT /items/:id',
-                    'DELETE /items/:id',
-                    'PUT /items/:id/stock',
                     'GET /categories',
                     'GET /search'
                 ]
@@ -215,10 +366,8 @@ class ItemService {
         this.app.get('/items/:id', this.getItem.bind(this));
         this.app.post('/items', this.authMiddleware.bind(this), this.createItem.bind(this));
         this.app.put('/items/:id', this.authMiddleware.bind(this), this.updateItem.bind(this));
-        this.app.delete('/items/:id', this.authMiddleware.bind(this), this.deleteItem.bind(this));
-        this.app.put('/items/:id/stock', this.authMiddleware.bind(this), this.updateStock.bind(this));
 
-        // Category routes (extraídas dos produtos)
+        // Category routes
         this.app.get('/categories', this.getCategories.bind(this));
 
         // Search route
@@ -289,11 +438,7 @@ class ItemService {
                 page = 1, 
                 limit = 10, 
                 category, 
-                minPrice, 
-                maxPrice, 
-                search,
-                active = true,
-                featured
+                active = true
             } = req.query;
             
             const skip = (page - 1) * parseInt(limit);
@@ -303,57 +448,14 @@ class ItemService {
 
             // Filtrar por categoria
             if (category) {
-                filter['category.slug'] = category;
+                filter.category = category;
             }
 
-            // Filtrar por destaque
-            if (featured !== undefined) {
-                filter.featured = featured === 'true';
-            }
-
-            // Filtrar por preço
-            if (minPrice) {
-                filter.price = { $gte: parseFloat(minPrice) };
-            }
-            if (maxPrice) {
-                if (filter.price) {
-                    filter.price.$lte = parseFloat(maxPrice);
-                } else {
-                    filter.price = { $lte: parseFloat(maxPrice) };
-                }
-            }
-
-            let items;
-            
-            // Se há busca por texto, usar método de search
-            if (search) {
-                items = await this.itemsDb.search(search, ['name', 'description', 'tags']);
-                // Aplicar outros filtros manualmente
-                items = items.filter(item => {
-                    for (const [key, value] of Object.entries(filter)) {
-                        if (key === 'price') {
-                            if (value.$gte && item.price < value.$gte) return false;
-                            if (value.$lte && item.price > value.$lte) return false;
-                        } else if (key.includes('.')) {
-                            // Campos aninhados (ex: category.slug)
-                            const keys = key.split('.');
-                            const itemValue = keys.reduce((obj, k) => obj?.[k], item);
-                            if (itemValue !== value) return false;
-                        } else if (item[key] !== value) {
-                            return false;
-                        }
-                    }
-                    return true;
-                });
-                // Aplicar paginação manual
-                items = items.slice(skip, skip + parseInt(limit));
-            } else {
-                items = await this.itemsDb.find(filter, {
-                    skip: skip,
-                    limit: parseInt(limit),
-                    sort: { createdAt: -1 }
-                });
-            }
+            const items = await this.itemsDb.find(filter, {
+                skip: skip,
+                limit: parseInt(limit),
+                sort: { name: 1 }
+            });
 
             const total = await this.itemsDb.count(filter);
 
@@ -368,7 +470,7 @@ class ItemService {
                 }
             });
         } catch (error) {
-            console.error('Erro ao buscar produtos:', error);
+            console.error('Erro ao buscar itens:', error);
             res.status(500).json({
                 success: false,
                 message: 'Erro interno do servidor'
@@ -385,7 +487,7 @@ class ItemService {
             if (!item) {
                 return res.status(404).json({
                     success: false,
-                    message: 'Produto não encontrado'
+                    message: 'Item não encontrado'
                 });
             }
 
@@ -394,7 +496,7 @@ class ItemService {
                 data: item
             });
         } catch (error) {
-            console.error('Erro ao buscar produto:', error);
+            console.error('Erro ao buscar item:', error);
             res.status(500).json({
                 success: false,
                 message: 'Erro interno do servidor'
@@ -402,54 +504,47 @@ class ItemService {
         }
     }
 
-    // Create item (demonstrando schema NoSQL flexível)
+    // Create item
     async createItem(req, res) {
         try {
             const { 
                 name, 
-                description, 
-                price, 
-                stock, 
                 category, 
-                images, 
-                tags, 
-                specifications,
-                featured = false
+                brand, 
+                unit, 
+                averagePrice, 
+                barcode, 
+                description 
             } = req.body;
 
-            if (!name || !price) {
+            if (!name || !category) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Nome e preço são obrigatórios'
+                    message: 'Nome e categoria são obrigatórios'
                 });
             }
 
-            // Criar produto com schema NoSQL flexível
+            // Criar item
             const newItem = await this.itemsDb.create({
                 id: uuidv4(),
                 name,
+                category,
+                brand: brand || '',
+                unit: unit || 'un',
+                averagePrice: parseFloat(averagePrice) || 0,
+                barcode: barcode || '',
                 description: description || '',
-                price: parseFloat(price),
-                stock: parseInt(stock) || 0,
-                category: category || { name: 'Geral', slug: 'geral' },
-                images: Array.isArray(images) ? images : (images ? [images] : []),
-                tags: Array.isArray(tags) ? tags : (tags ? [tags] : []),
-                specifications: specifications || {},
                 active: true,
-                featured: featured,
-                metadata: {
-                    createdBy: req.user.id,
-                    createdByName: `${req.user.firstName} ${req.user.lastName}`
-                }
+                createdAt: new Date().toISOString()
             });
 
             res.status(201).json({
                 success: true,
-                message: 'Produto criado com sucesso',
+                message: 'Item criado com sucesso',
                 data: newItem
             });
         } catch (error) {
-            console.error('Erro ao criar produto:', error);
+            console.error('Erro ao criar item:', error);
             res.status(500).json({
                 success: false,
                 message: 'Erro interno do servidor'
@@ -457,65 +552,29 @@ class ItemService {
         }
     }
 
-    // Update item (demonstrando flexibilidade NoSQL)
+    // Update item
     async updateItem(req, res) {
         try {
             const { id } = req.params;
-            const { 
-                name, 
-                description, 
-                price, 
-                stock, 
-                category, 
-                images, 
-                tags, 
-                specifications,
-                active,
-                featured
-            } = req.body;
+            const updates = req.body;
 
             const item = await this.itemsDb.findById(id);
             if (!item) {
                 return res.status(404).json({
                     success: false,
-                    message: 'Produto não encontrado'
+                    message: 'Item não encontrado'
                 });
             }
-
-            // Updates flexíveis com NoSQL
-            const updates = {};
-            if (name !== undefined) updates.name = name;
-            if (description !== undefined) updates.description = description;
-            if (price !== undefined) updates.price = parseFloat(price);
-            if (stock !== undefined) updates.stock = parseInt(stock);
-            if (category !== undefined) updates.category = category;
-            if (images !== undefined) {
-                updates.images = Array.isArray(images) ? images : (images ? [images] : []);
-            }
-            if (tags !== undefined) {
-                updates.tags = Array.isArray(tags) ? tags : (tags ? [tags] : []);
-            }
-            if (specifications !== undefined) {
-                // Merge com especificações existentes
-                updates.specifications = { ...item.specifications, ...specifications };
-            }
-            if (active !== undefined) updates.active = active;
-            if (featured !== undefined) updates.featured = featured;
-
-            // Adicionar metadata de atualização
-            updates['metadata.lastUpdatedBy'] = req.user.id;
-            updates['metadata.lastUpdatedByName'] = `${req.user.firstName} ${req.user.lastName}`;
-            updates['metadata.lastUpdatedAt'] = new Date().toISOString();
 
             const updatedItem = await this.itemsDb.update(id, updates);
 
             res.json({
                 success: true,
-                message: 'Produto atualizado com sucesso',
+                message: 'Item atualizado com sucesso',
                 data: updatedItem
             });
         } catch (error) {
-            console.error('Erro ao atualizar produto:', error);
+            console.error('Erro ao atualizar item:', error);
             res.status(500).json({
                 success: false,
                 message: 'Erro interno do servidor'
@@ -523,118 +582,11 @@ class ItemService {
         }
     }
 
-    // Delete item (soft delete)
-    async deleteItem(req, res) {
-        try {
-            const { id } = req.params;
-
-            const item = await this.itemsDb.findById(id);
-            if (!item) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Produto não encontrado'
-                });
-            }
-
-            // Soft delete - desativar produto
-            await this.itemsDb.update(id, { 
-                active: false,
-                'metadata.deletedBy': req.user.id,
-                'metadata.deletedByName': `${req.user.firstName} ${req.user.lastName}`,
-                'metadata.deletedAt': new Date().toISOString()
-            });
-
-            res.json({
-                success: true,
-                message: 'Produto removido com sucesso'
-            });
-        } catch (error) {
-            console.error('Erro ao deletar produto:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Erro interno do servidor'
-            });
-        }
-    }
-
-    // Update stock
-    async updateStock(req, res) {
-        try {
-            const { id } = req.params;
-            const { quantity, operation = 'set' } = req.body;
-
-            const item = await this.itemsDb.findById(id);
-            if (!item) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Produto não encontrado'
-                });
-            }
-
-            let newStock = item.stock;
-            
-            switch (operation) {
-                case 'add':
-                    newStock += parseInt(quantity);
-                    break;
-                case 'subtract':
-                    newStock = Math.max(0, newStock - parseInt(quantity));
-                    break;
-                case 'set':
-                default:
-                    newStock = parseInt(quantity);
-                    break;
-            }
-
-            await this.itemsDb.update(id, { 
-                stock: newStock,
-                'metadata.lastStockUpdate': new Date().toISOString(),
-                'metadata.lastStockUpdateBy': req.user.id
-            });
-
-            res.json({
-                success: true,
-                message: 'Estoque atualizado com sucesso',
-                data: {
-                    itemId: id,
-                    previousStock: item.stock,
-                    newStock: newStock,
-                    operation: operation,
-                    quantity: parseInt(quantity)
-                }
-            });
-        } catch (error) {
-            console.error('Erro ao atualizar estoque:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Erro interno do servidor'
-            });
-        }
-    }
-
-    // Get categories (extraídas dos produtos)
+    // Get categories
     async getCategories(req, res) {
         try {
             const items = await this.itemsDb.find({ active: true });
-            
-            // Extrair categorias únicas dos produtos (demonstrando flexibilidade NoSQL)
-            const categoriesMap = new Map();
-            items.forEach(item => {
-                if (item.category) {
-                    const key = item.category.slug || item.category.name;
-                    if (!categoriesMap.has(key)) {
-                        categoriesMap.set(key, {
-                            name: item.category.name,
-                            slug: item.category.slug || item.category.name.toLowerCase().replace(/\s+/g, '-'),
-                            itemCount: 0
-                        });
-                    }
-                    categoriesMap.get(key).itemCount++;
-                }
-            });
-
-            const categories = Array.from(categoriesMap.values())
-                .sort((a, b) => a.name.localeCompare(b.name));
+            const categories = [...new Set(items.map(item => item.category))].sort();
             
             res.json({
                 success: true,
@@ -649,45 +601,48 @@ class ItemService {
         }
     }
 
-    // Search items (demonstrando busca NoSQL)
+    // Search items
     async searchItems(req, res) {
         try {
-            const { q, limit = 20, category } = req.query;
-
+            const { q, category, limit = 10 } = req.query;
+            
             if (!q) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Parâmetro de busca "q" é obrigatório'
+                    message: 'Parâmetro de busca (q) é obrigatório'
                 });
             }
 
-            // Busca full-text NoSQL
-            let items = await this.itemsDb.search(q, ['name', 'description', 'tags']);
-            
-            // Filtrar apenas produtos ativos
-            items = items.filter(item => item.active);
+            // Busca flexível por nome ou descrição
+            const filter = {
+                active: true,
+                $or: [
+                    { name: { $regex: q, $options: 'i' } },
+                    { description: { $regex: q, $options: 'i' } }
+                ]
+            };
 
-            // Filtrar por categoria se especificada
+            // Filtrar por categoria se fornecida
             if (category) {
-                items = items.filter(item => 
-                    item.category?.slug === category || item.category?.name === category
-                );
+                filter.category = category;
             }
 
-            // Aplicar limite
-            items = items.slice(0, parseInt(limit));
+            const items = await this.itemsDb.find(filter, {
+                limit: parseInt(limit),
+                sort: { name: 1 }
+            });
 
             res.json({
                 success: true,
-                data: {
+                data: items,
+                search: {
                     query: q,
-                    category: category || null,
-                    results: items,
-                    total: items.length
+                    category: category || 'all',
+                    results: items.length
                 }
             });
         } catch (error) {
-            console.error('Erro na busca de produtos:', error);
+            console.error('Erro na busca:', error);
             res.status(500).json({
                 success: false,
                 message: 'Erro interno do servidor'
@@ -701,7 +656,7 @@ class ItemService {
             url: this.serviceUrl,
             version: '1.0.0',
             database: 'JSON-NoSQL',
-            endpoints: ['/health', '/items', '/categories', '/search']
+            endpoints: ['/health', '/items', '/items/:id', '/categories', '/search']
         });
     }
 
