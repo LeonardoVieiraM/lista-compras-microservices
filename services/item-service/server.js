@@ -620,7 +620,6 @@ class ItemService {
         });
       }
 
-      // ✅ CORRIGIDO: Busca com filtro regex correto
       const filter = {
         active: true,
         $regex: q,

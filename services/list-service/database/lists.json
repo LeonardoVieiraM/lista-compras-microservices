@@ -43,5 +43,80 @@
     },
     "createdAt": "2025-09-21T21:44:38.115Z",
     "updatedAt": "2025-09-21T21:44:38.115Z"
+  },
+  {
+    "id": "d37b760f-4190-42a8-86be-b26a6073be52",
+    "userId": "98320041-104e-45a5-81a0-8f8311bdb382",
+    "name": "Minha Lista de Compras",
+    "description": "Lista de compras da semana",
+    "status": "active",
+    "items": [],
+    "summary": {
+      "totalItems": 0,
+      "purchasedItems": 0,
+      "estimatedTotal": 0
+    },
+    "createdAt": "2025-09-21T21:48:25.962Z",
+    "updatedAt": "2025-09-21T21:48:25.962Z"
+  },
+  {
+    "id": "405cc3ea-039c-4a44-ad6f-84f56edfb3d6",
+    "userId": "98320041-104e-45a5-81a0-8f8311bdb382",
+    "name": "Minha Lista de Compras",
+    "description": "Lista de compras da semana",
+    "status": "active",
+    "items": [],
+    "summary": {
+      "totalItems": 0,
+      "purchasedItems": 0,
+      "estimatedTotal": 0
+    },
+    "createdAt": "2025-09-21T21:55:00.290Z",
+    "updatedAt": "2025-09-21T21:55:00.291Z"
+  },
+  {
+    "id": "4193a443-0e30-4377-bc9a-d9153147910a",
+    "userId": "98320041-104e-45a5-81a0-8f8311bdb382",
+    "name": "Minha Lista de Compras",
+    "description": "Lista de compras da semana",
+    "status": "active",
+    "items": [],
+    "summary": {
+      "totalItems": 0,
+      "purchasedItems": 0,
+      "estimatedTotal": 0
+    },
+    "createdAt": "2025-09-21T22:01:44.466Z",
+    "updatedAt": "2025-09-21T22:01:44.466Z"
+  },
+  {
+    "id": "748ba8e3-8a97-45b2-a9a0-0b3eec8ec7d0",
+    "userId": "98320041-104e-45a5-81a0-8f8311bdb382",
+    "name": "Minha Lista de Compras",
+    "description": "Lista de compras da semana",
+    "status": "active",
+    "items": [],
+    "summary": {
+      "totalItems": 0,
+      "purchasedItems": 0,
+      "estimatedTotal": 0
+    },
+    "createdAt": "2025-09-21T22:12:48.438Z",
+    "updatedAt": "2025-09-21T22:12:48.438Z"
+  },
+  {
+    "id": "92e5464f-0fde-430b-bf9d-0c51b3b7d150",
+    "userId": "98320041-104e-45a5-81a0-8f8311bdb382",
+    "name": "Minha Lista de Compras",
+    "description": "Lista de compras da semana",
+    "status": "active",
+    "items": [],
+    "summary": {
+      "totalItems": 0,
+      "purchasedItems": 0,
+      "estimatedTotal": 0
+    },
+    "createdAt": "2025-09-21T22:13:44.095Z",
+    "updatedAt": "2025-09-21T22:13:44.095Z"
   }
 ]

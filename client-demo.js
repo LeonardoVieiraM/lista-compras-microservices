@@ -92,8 +92,9 @@ class ShoppingListDemo {
   }
 
   async browseItems() {
-    console.log("\n=== Navegando pelos Itens ===");
     try {
+      console.log("\n=== Navegando pelos Itens ===");
+
       // Listar categorias
       const categoriesResponse = await axios.get(
         `${this.baseUrl}/api/items/categories`
@@ -104,11 +105,12 @@ class ShoppingListDemo {
       const itemsResponse = await axios.get(
         `${this.baseUrl}/api/items?active=true&limit=5`
       );
-      console.log("Itens encontrados:", itemsResponse.data.data.length);
+      const items = itemsResponse.data.data; // ✅ Agora está correto!
+      console.log(`Itens encontrados: ${items.length}`);
 
       // Buscar um item específico
-      if (itemsResponse.data.data.length > 0) {
-        const itemId = itemsResponse.data.data[0].id;
+      if (items.length > 0) {
+        const itemId = items[0].id;
         const itemResponse = await axios.get(
           `${this.baseUrl}/api/items/${itemId}`
         );
@@ -119,6 +121,45 @@ class ShoppingListDemo {
     } catch (error) {
       console.error(
         "Navegação de itens falhou:",
+        error.response?.data || error.message
+      );
+      return false;
+    }
+  }
+
+  async addItemsToList() {
+    try {
+      console.log("\n=== Adicionando Itens à Lista ===");
+
+      // ✅ CORRIGIDO: Buscar itens ativos
+      const itemsResponse = await axios.get(
+        `${this.baseUrl}/api/items?active=true&limit=3`
+      );
+      const items = itemsResponse.data.data; // ✅ Agora está correto!
+
+      // Adiciona cada item à lista
+      for (const item of items) {
+        const addItemData = {
+          itemId: item.id,
+          quantity: Math.floor(Math.random() * 3) + 1,
+          notes: `Notas para ${item.name}`,
+        };
+
+        await axios.post(
+          `${this.baseUrl}/api/lists/${this.listId}/items`,
+          addItemData,
+          {
+            headers: { Authorization: `Bearer ${this.token}` },
+          }
+        );
+
+        console.log(`Item adicionado: ${item.name}`);
+      }
+
+      return true;
+    } catch (error) {
+      console.error(
+        "Adição de itens falhou:",
         error.response?.data || error.message
       );
       return false;

@@ -462,11 +462,11 @@ class ApiGateway {
 
       const results = {};
 
-      // Search items
+      // Search items - ✅ CORRIGIDO: Usar URL direta
       try {
-        const itemService = serviceRegistry.discover("item-service");
+        const itemServiceUrl = "http://localhost:3003";
         const response = await axios.get(
-          `${itemService.url}/search?q=${encodeURIComponent(q)}&limit=10`,
+          `${itemServiceUrl}/search?q=${encodeURIComponent(q)}&limit=10`,
           { timeout: 5000 }
         );
 
