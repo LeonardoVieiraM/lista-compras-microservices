@@ -131,10 +131,14 @@ class ServiceRegistry {
   async getAllServices() {
     try {
       const services = await this.#readRegistry();
-      console.log("Services no registry:", Object.keys(services));
+      console.log(
+        "🔄 getAllServices - Services no registry:",
+        Object.keys(services)
+      );
       return services;
     } catch (error) {
-      console.error("Erro ao obter todos os serviços:", error.message);
+      console.error("❌ Erro ao obter todos os serviços:", error.message);
+      console.error(error.stack);
       return {};
     }
   }

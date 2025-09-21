@@ -1,1 +1,47 @@
-[]
+[
+  {
+    "id": "33eb3a6c-f360-4cd5-8c45-67f179249536",
+    "userId": "98320041-104e-45a5-81a0-8f8311bdb382",
+    "name": "Minha Lista de Compras",
+    "description": "Lista de compras da semana",
+    "status": "active",
+    "items": [],
+    "summary": {
+      "totalItems": 0,
+      "purchasedItems": 0,
+      "estimatedTotal": 0
+    },
+    "createdAt": "2025-09-21T21:31:48.319Z",
+    "updatedAt": "2025-09-21T21:31:48.319Z"
+  },
+  {
+    "id": "dd930aea-7536-4df3-8869-295a293f9e32",
+    "userId": "98320041-104e-45a5-81a0-8f8311bdb382",
+    "name": "Minha Lista de Compras",
+    "description": "Lista de compras da semana",
+    "status": "active",
+    "items": [],
+    "summary": {
+      "totalItems": 0,
+      "purchasedItems": 0,
+      "estimatedTotal": 0
+    },
+    "createdAt": "2025-09-21T21:38:32.335Z",
+    "updatedAt": "2025-09-21T21:38:32.335Z"
+  },
+  {
+    "id": "9541d91a-bc48-4eb6-81d8-cefb29e5908d",
+    "userId": "98320041-104e-45a5-81a0-8f8311bdb382",
+    "name": "Minha Lista de Compras",
+    "description": "Lista de compras da semana",
+    "status": "active",
+    "items": [],
+    "summary": {
+      "totalItems": 0,
+      "purchasedItems": 0,
+      "estimatedTotal": 0
+    },
+    "createdAt": "2025-09-21T21:44:38.115Z",
+    "updatedAt": "2025-09-21T21:44:38.115Z"
+  }
+]

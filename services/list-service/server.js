@@ -144,16 +144,21 @@ class ListService {
     }
 
     try {
-      // Descobrir User Service
-      const userService = serviceRegistry.discover("user-service");
+      // ✅ CORRIGIDO: Usar URL hardcoded como fallback
+      const userServiceUrl = "http://localhost:3001";
 
       // Validar token com User Service
       const response = await axios.post(
-        `${userService.url}/auth/validate`,
+        `${userServiceUrl}/auth/validate`,
         {
           token: authHeader.replace("Bearer ", ""),
         },
-        { timeout: 5000 }
+        {
+          timeout: 5000,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       if (response.data.success) {

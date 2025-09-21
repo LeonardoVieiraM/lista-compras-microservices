@@ -34,9 +34,12 @@ class ItemService {
 
   async seedInitialData() {
     try {
+      console.log("🌱 Verificando dados iniciais...");
       const existingItems = await this.itemsDb.find();
+      console.log(`Itens existentes: ${existingItems.length}`);
 
       if (existingItems.length === 0) {
+        console.log("📦 Criando dados de exemplo...");
         const sampleItems = [
           // Alimentos (5 itens)
           {
@@ -289,12 +292,15 @@ class ItemService {
 
         for (const item of sampleItems) {
           await this.itemsDb.create(item);
+          console.log(`✅ Item criado: ${item.name}`);
         }
 
-        console.log("Itens de exemplo criados no Item Service");
+        console.log("🎉 Itens de exemplo criados no Item Service");
+      } else {
+        console.log("ℹ️  Dados já existem, pulando criação");
       }
     } catch (error) {
-      console.error("Erro ao criar dados iniciais:", error);
+      console.error("❌ Erro ao criar dados iniciais:", error);
     }
   }
 
@@ -350,18 +356,20 @@ class ItemService {
         description: "Microsserviço para gerenciamento de itens",
         database: "JSON-NoSQL",
         endpoints: [
-          "GET /items",
-          "GET /items/:id",
-          "POST /items",
-          "PUT /items/:id",
-          "GET /categories",
-          "GET /search",
+          "GET /items", // ✅ Correto
+          "GET /items/:id", // ✅ Correto
+          "POST /items", // ✅ Correto
+          "PUT /items/:id", // ✅ Correto
+          "GET /categories", // ✅ Correto
+          "GET /search", // ✅ Correto
         ],
       });
     });
 
     this.app.get("/items", this.getItems.bind(this));
     this.app.get("/items/:id", this.getItem.bind(this));
+    this.app.get("/categories", this.getCategories.bind(this));
+    this.app.get("/search", this.searchItems.bind(this));
     this.app.post(
       "/items",
       this.authMiddleware.bind(this),
@@ -372,9 +380,6 @@ class ItemService {
       this.authMiddleware.bind(this),
       this.updateItem.bind(this)
     );
-
-    this.app.get("/categories", this.getCategories.bind(this));
-    this.app.get("/search", this.searchItems.bind(this));
   }
 
   setupErrorHandling() {
@@ -441,25 +446,23 @@ class ItemService {
   // Get items (com filtros e paginação)
   async getItems(req, res) {
     try {
+      console.log("📦 Buscando itens...");
       const { page = 1, limit = 10, category, active = true } = req.query;
 
-      const skip = (page - 1) * parseInt(limit);
-
-      // Filtros NoSQL flexíveis
       const filter = { active: active === "true" };
+      if (category) filter.category = category;
 
-      // Filtrar por categoria
-      if (category) {
-        filter.category = category;
-      }
+      console.log("Filtro:", filter);
 
       const items = await this.itemsDb.find(filter, {
-        skip: skip,
+        skip: (page - 1) * parseInt(limit),
         limit: parseInt(limit),
         sort: { name: 1 },
       });
 
       const total = await this.itemsDb.count(filter);
+
+      console.log(`✅ Encontrados ${items.length} itens de ${total}`);
 
       res.json({
         success: true,
@@ -472,7 +475,7 @@ class ItemService {
         },
       });
     } catch (error) {
-      console.error("Erro ao buscar itens:", error);
+      console.error("❌ Erro ao buscar itens:", error);
       res.status(500).json({
         success: false,
         message: "Erro interno do servidor",
@@ -617,13 +620,12 @@ class ItemService {
         });
       }
 
-      // Busca flexível por nome ou descrição
+      // ✅ CORRIGIDO: Busca com filtro regex correto
       const filter = {
         active: true,
-        $or: [
-          { name: { $regex: q, $options: "i" } },
-          { description: { $regex: q, $options: "i" } },
-        ],
+        $regex: q,
+        $options: "i",
+        $field: "name", // buscar por nome
       };
 
       // Filtrar por categoria se fornecida

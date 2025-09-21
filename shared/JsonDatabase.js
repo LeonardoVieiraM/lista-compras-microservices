@@ -1,5 +1,5 @@
-const fs = require('fs-extra');
-const path = require('path');
+const fs = require("fs-extra");
+const path = require("path");
 
 class JsonDatabase {
   constructor(basePath, collectionName) {
@@ -11,7 +11,7 @@ class JsonDatabase {
   initialize() {
     try {
       if (fs.existsSync(this.filePath)) {
-        const data = fs.readFileSync(this.filePath, 'utf8');
+        const data = fs.readFileSync(this.filePath, "utf8");
         this.collection = JSON.parse(data);
       } else {
         // Create directory if it doesn't exist
@@ -19,7 +19,7 @@ class JsonDatabase {
         this.save();
       }
     } catch (error) {
-      console.error('Error initializing database:', error);
+      console.error("Error initializing database:", error);
       this.collection = [];
     }
   }
@@ -28,7 +28,7 @@ class JsonDatabase {
     try {
       fs.writeFileSync(this.filePath, JSON.stringify(this.collection, null, 2));
     } catch (error) {
-      console.error('Error saving database:', error);
+      console.error("Error saving database:", error);
     }
   }
 
@@ -39,17 +39,21 @@ class JsonDatabase {
   }
 
   async find(filter = {}, options = {}) {
+    console.log("🔍 JsonDatabase find:");
+    console.log("Filter:", JSON.stringify(filter, null, 2));
+    console.log("Options:", options);
+
     let results = [...this.collection];
 
     // Apply filters
     if (Object.keys(filter).length > 0) {
-      results = results.filter(item => {
+      results = results.filter((item) => {
         for (const key in filter) {
-          if (key.startsWith('$')) {
+          if (key.startsWith("$")) {
             // Handle special operators
-            if (key === '$or') {
+            if (key === "$or") {
               const orConditions = filter[key];
-              const orMatch = orConditions.some(condition => {
+              const orMatch = orConditions.some((condition) => {
                 for (const orKey in condition) {
                   if (item[orKey] !== condition[orKey]) {
                     return false;
@@ -58,12 +62,16 @@ class JsonDatabase {
                 return true;
               });
               if (!orMatch) return false;
-            }
-          } else if (key === '$regex') {
-            // Handle regex search
-            const regex = new RegExp(filter[key], filter.$options || '');
-            if (!regex.test(item[filter.field])) {
-              return false;
+            } else if (key === "$regex") {
+              // ✅ CORRIGIDO: Regex filter
+              const regexPattern = filter[key];
+              const regexOptions = filter.$options || "i";
+              const field = filter.$field || "name"; // default field
+
+              const regex = new RegExp(regexPattern, regexOptions);
+              if (!regex.test(item[field])) {
+                return false;
+              }
             }
           } else if (item[key] !== filter[key]) {
             return false;
@@ -101,11 +109,11 @@ class JsonDatabase {
   }
 
   async findById(id) {
-    return this.collection.find(item => item.id === id) || null;
+    return this.collection.find((item) => item.id === id) || null;
   }
 
   async update(id, updates) {
-    const index = this.collection.findIndex(item => item.id === id);
+    const index = this.collection.findIndex((item) => item.id === id);
     if (index === -1) return null;
 
     this.collection[index] = { ...this.collection[index], ...updates };
@@ -114,7 +122,7 @@ class JsonDatabase {
   }
 
   async delete(id) {
-    const index = this.collection.findIndex(item => item.id === id);
+    const index = this.collection.findIndex((item) => item.id === id);
     if (index === -1) return false;
 
     this.collection.splice(index, 1);

@@ -219,13 +219,25 @@ class ApiGateway {
   }
 
   // Get service registry
-  getRegistry(req, res) {
-    const services = serviceRegistry.getAllServices();
-    res.json({
-      success: true,
-      data: services,
-      count: Object.keys(services).length,
-    });
+  async getRegistry(req, res) {
+    try {
+      console.log("🔄 Buscando registry...");
+      const services = await serviceRegistry.getAllServices();
+      console.log("✅ Registry encontrado:", Object.keys(services));
+
+      res.json({
+        success: true,
+        data: services,
+        count: Object.keys(services).length,
+      });
+    } catch (error) {
+      console.error("❌ Erro ao buscar registry:", error.message);
+      res.status(500).json({
+        success: false,
+        message: "Erro ao acessar service registry",
+        error: error.message,
+      });
+    }
   }
 
   // Proxy requests to services
