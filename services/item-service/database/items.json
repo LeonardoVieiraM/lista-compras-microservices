@@ -1,130 +1,242 @@
 [
   {
-    "id": "5033d94e-2caa-4438-9d83-9facc23fabac",
-    "name": "Smartphone Premium",
-    "description": "Smartphone tela 6.1\", 128GB, câmera 48MP",
-    "price": 1299.99,
-    "stock": 15,
-    "category": {
-      "name": "Eletrônicos",
-      "slug": "eletronicos"
-    },
-    "images": [
-      "https://via.placeholder.com/300x300?text=Smartphone+1",
-      "https://via.placeholder.com/300x300?text=Smartphone+2"
-    ],
-    "tags": [
-      "smartphone",
-      "tecnologia",
-      "celular"
-    ],
-    "specifications": {
-      "brand": "TechBrand",
-      "model": "Premium X1",
-      "storage": "128GB",
-      "ram": "8GB",
-      "camera": "48MP"
-    },
+    "id": "0c38fbef-fcf2-4980-b7ec-2d5912930635",
+    "name": "Arroz",
+    "category": "Alimentos",
+    "brand": "Tio João",
+    "unit": "kg",
+    "averagePrice": 5.99,
+    "barcode": "7891234567890",
+    "description": "Arroz branco tipo 1",
     "active": true,
-    "featured": true,
-    "createdAt": "2025-09-16T01:06:58.592Z",
-    "updatedAt": "2025-09-16T01:06:58.592Z"
+    "createdAt": "2025-09-21T18:06:09.303Z"
   },
   {
-    "id": "eae4799a-6070-4bf7-b37d-405495210a84",
-    "name": "Notebook Gamer",
-    "description": "Notebook Intel i7, 16GB RAM, RTX 3060",
-    "price": 3499.99,
-    "stock": 8,
-    "category": {
-      "name": "Eletrônicos",
-      "slug": "eletronicos"
-    },
-    "images": [
-      "https://via.placeholder.com/300x300?text=Notebook+1"
-    ],
-    "tags": [
-      "notebook",
-      "gamer",
-      "computador"
-    ],
-    "specifications": {
-      "brand": "GameTech",
-      "processor": "Intel i7",
-      "ram": "16GB",
-      "graphics": "RTX 3060",
-      "storage": "512GB SSD"
-    },
+    "id": "d7579fc4-73bf-4712-a338-9802cfe253b7",
+    "name": "Feijão",
+    "category": "Alimentos",
+    "brand": "Camil",
+    "unit": "kg",
+    "averagePrice": 8.49,
+    "barcode": "7891234567891",
+    "description": "Feijão carioca",
     "active": true,
-    "featured": false,
-    "createdAt": "2025-09-16T01:06:58.596Z",
-    "updatedAt": "2025-09-16T01:06:58.596Z"
+    "createdAt": "2025-09-21T18:06:09.303Z"
   },
   {
-    "id": "f1cb6970-5a1d-43ed-bcdc-c2be8e7a5fbc",
-    "name": "Fone Bluetooth",
-    "description": "Fone sem fio com cancelamento de ruído",
-    "price": 299.99,
-    "stock": 25,
-    "category": {
-      "name": "Acessórios",
-      "slug": "acessorios"
-    },
-    "images": [
-      "https://via.placeholder.com/300x300?text=Fone+1"
-    ],
-    "tags": [
-      "fone",
-      "bluetooth",
-      "audio"
-    ],
-    "specifications": {
-      "brand": "AudioMax",
-      "connectivity": "Bluetooth 5.0",
-      "battery": "30h",
-      "noiseCancellation": true
-    },
+    "id": "90cc28d2-61eb-465a-8e4b-512c4a22808b",
+    "name": "Açúcar",
+    "category": "Alimentos",
+    "brand": "União",
+    "unit": "kg",
+    "averagePrice": 4.29,
+    "barcode": "7891234567892",
+    "description": "Açúcar refinado",
     "active": true,
-    "featured": true,
-    "createdAt": "2025-09-16T01:06:58.599Z",
-    "updatedAt": "2025-09-16T01:06:58.599Z"
+    "createdAt": "2025-09-21T18:06:09.303Z"
   },
   {
-    "id": "f8c734aa-04d3-47c1-901f-ba913d7e2932",
-    "name": "Camiseta Básica",
-    "description": "Camiseta 100% algodão, várias cores",
-    "price": 39.99,
-    "stock": 50,
-    "category": {
-      "name": "Roupas",
-      "slug": "roupas"
-    },
-    "images": [
-      "https://via.placeholder.com/300x300?text=Camiseta+1"
-    ],
-    "tags": [
-      "camiseta",
-      "básica",
-      "algodão"
-    ],
-    "specifications": {
-      "material": "100% Algodão",
-      "sizes": [
-        "P",
-        "M",
-        "G",
-        "GG"
-      ],
-      "colors": [
-        "Branco",
-        "Preto",
-        "Azul",
-        "Verde"
-      ]
-    },
+    "id": "106ebcfb-512d-4f68-a654-09f4128a544f",
+    "name": "Óleo de Soja",
+    "category": "Alimentos",
+    "brand": "Liza",
+    "unit": "litro",
+    "averagePrice": 7.99,
+    "barcode": "7891234567893",
+    "description": "Óleo de soja refinado",
     "active": true,
-    "featured": false,
-    "createdAt": "2025-09-16T01:06:58.602Z",
-    "updatedAt": "2025-09-16T01:06:58.602Z"
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "05148f84-7fc9-4f8e-827c-da434224cd41",
+    "name": "Farinha de Trigo",
+    "category": "Alimentos",
+    "brand": "Dona Benta",
+    "unit": "kg",
+    "averagePrice": 4.89,
+    "barcode": "7891234567894",
+    "description": "Farinha de trigo especial",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "fa24a431-ebd0-43cf-8600-f9781617c7bc",
+    "name": "Detergente",
+    "category": "Limpeza",
+    "brand": "Ypê",
+    "unit": "un",
+    "averagePrice": 2.49,
+    "barcode": "7891234567895",
+    "description": "Detergente líquido neutro",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "a1b00174-c3ba-4b9c-91f3-31854c5b2ee2",
+    "name": "Sabão em Pó",
+    "category": "Limpeza",
+    "brand": "Omo",
+    "unit": "kg",
+    "averagePrice": 15.9,
+    "barcode": "7891234567896",
+    "description": "Sabão em pó multiuso",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "575330af-0206-4dbc-81d0-1ebf5569c0f0",
+    "name": "Água Sanitária",
+    "category": "Limpeza",
+    "brand": "Qboa",
+    "unit": "litro",
+    "averagePrice": 6.99,
+    "barcode": "7891234567897",
+    "description": "Água sanitária concentrada",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "19c42eb1-0549-4e6e-ac51-589d6cbc0420",
+    "name": "Desinfetante",
+    "category": "Limpeza",
+    "brand": "Pinho Sol",
+    "unit": "litro",
+    "averagePrice": 9.49,
+    "barcode": "7891234567898",
+    "description": "Desinfetante aroma pinho",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "12d15d44-f84c-4919-89f0-2126d4b7f509",
+    "name": "Esponja de Aço",
+    "category": "Limpeza",
+    "brand": "Bombril",
+    "unit": "un",
+    "averagePrice": 3.99,
+    "barcode": "7891234567899",
+    "description": "Esponja de aço para limpeza",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "d0b280ac-b949-4521-9fee-25de2fda2acc",
+    "name": "Sabonete",
+    "category": "Higiene",
+    "brand": "Dove",
+    "unit": "un",
+    "averagePrice": 2.99,
+    "barcode": "7891234567800",
+    "description": "Sabonete hidratante",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "b3823d06-0d43-4a99-81aa-010ca12c4b64",
+    "name": "Shampoo",
+    "category": "Higiene",
+    "brand": "Pantene",
+    "unit": "ml",
+    "averagePrice": 14.9,
+    "barcode": "7891234567801",
+    "description": "Shampoo reparação completa",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "c6752f87-cafc-4f2d-bb9a-e40fa405ba93",
+    "name": "Creme Dental",
+    "category": "Higiene",
+    "brand": "Colgate",
+    "unit": "un",
+    "averagePrice": 5.49,
+    "barcode": "7891234567802",
+    "description": "Creme dental total 12",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "95bc9997-0d31-414f-a07a-01632041a93b",
+    "name": "Papel Higiênico",
+    "category": "Higiene",
+    "brand": "Neve",
+    "unit": "un",
+    "averagePrice": 12.99,
+    "barcode": "7891234567803",
+    "description": "Papel higiênico folha dupla",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "9f2da078-a422-46d1-92ba-4dbfc20107a4",
+    "name": "Desodorante",
+    "category": "Higiene",
+    "brand": "Rexona",
+    "unit": "un",
+    "averagePrice": 11.9,
+    "barcode": "7891234567804",
+    "description": "Desodorante aerosol masculino",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "1656a7da-e963-45d5-9b7c-bd604c499d52",
+    "name": "Refrigerante",
+    "category": "Bebidas",
+    "brand": "Coca-Cola",
+    "unit": "litro",
+    "averagePrice": 8.99,
+    "barcode": "7891234567805",
+    "description": "Refrigerante cola",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "790208df-8433-469e-8df6-c1da9ecfcd36",
+    "name": "Suco de Laranja",
+    "category": "Bebidas",
+    "brand": "Del Valle",
+    "unit": "litro",
+    "averagePrice": 9.49,
+    "barcode": "7891234567806",
+    "description": "Suco integral de laranja",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "a741c6af-3306-472b-a869-6afae8b73bd5",
+    "name": "Água Mineral",
+    "category": "Bebidas",
+    "brand": "Crystal",
+    "unit": "litro",
+    "averagePrice": 2.99,
+    "barcode": "7891234567807",
+    "description": "Água mineral sem gás",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "e1251bf6-1c31-45a9-bbda-2e14cfd459e2",
+    "name": "Cerveja",
+    "category": "Bebidas",
+    "brand": "Skol",
+    "unit": "ml",
+    "averagePrice": 3.49,
+    "barcode": "7891234567808",
+    "description": "Cerveja pilsen lata 350ml",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
+  },
+  {
+    "id": "b288041e-6c5e-42d3-b635-dc2d1217ee89",
+    "name": "Leite",
+    "category": "Bebidas",
+    "brand": "Itambé",
+    "unit": "litro",
+    "averagePrice": 4.79,
+    "barcode": "7891234567809",
+    "description": "Leite integral UHT",
+    "active": true,
+    "createdAt": "2025-09-21T18:06:09.303Z"
   }
 ]
